@@ -1,0 +1,100 @@
+
+SCENARIO B4: TICKET BOOKING
+BACKUP, RESTORE AND DISASTER RECOVERY
+======================================
+
+TASK 1: TAKE A FULL BACKUP OF THE REPLICA SET
+
+Backup location:
+C:\backups\ticket_full
+
+Expected output:
+
+writing ticketDB.bookings to
+C:\backups\ticket_full\ticketDB\bookings.bson
+
+done dumping ticketDB.bookings (5 documents)
+
+writing captured oplog to
+C:\backups\ticket_full\oplog.bson
+
+
+TASK 2: VERIFY THE BACKUP FILES
+
+Expected backup files:
+
+ticket_full/
+    oplog.bson
+    ticketDB/
+        bookings.bson
+        bookings.metadata.json
+
+Backup files verified successfully.
+
+
+TASK 3: SIMULATE A DISASTER
+
+Command:
+db.bookings.drop();
+
+Expected output:
+
+Collection dropped.
+Count after drop: 0
+
+
+TASK 4: RESTORE THE COLLECTION
+
+Expected output:
+
+restoring ticketDB.bookings
+
+finished restoring ticketDB.bookings
+5 document(s) restored successfully.
+0 document(s) failed to restore.
+
+
+TASK 5: VERIFY THE RESTORED DATA
+
+Expected count:
+
+5
+
+Restored documents:
+
+[
+  { passenger: "Anand", seats: 2 },
+  { passenger: "Bhuvana", seats: 1 },
+  { passenger: "Chandru", seats: 3 },
+  { passenger: "Divya", seats: 1 },
+  { passenger: "Elango", seats: 2 }
+]
+
+All five bookings restored successfully.
+
+
+TASK 6: DISASTER RECOVERY
+
+Failure: Secondary server failure
+Solution: Repair or rebuild the failed secondary.
+
+Failure: Primary server failure
+Solution: Allow replica set election.
+
+Failure: Accidental collection deletion
+Solution: Restore from backup.
+
+Failure: Backup corruption
+Solution: Use another verified backup.
+
+Failure: Complete database failure
+Solution: Restore full backup and recover using oplog.
+
+
+THREE GOOD BACKUP PRACTICES
+
+1. Maintain multiple backup copies.
+2. Verify backups and perform regular test restores.
+3. Store backups securely and monitor backup jobs.
+
+END OF SCENARIO B4
