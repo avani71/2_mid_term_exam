@@ -1,0 +1,90 @@
+
+SCENARIO B3: MOVIE CATALOGUE
+============================
+
+TASK 1: EXPLAIN WITHOUT AN INDEX
+
+Query:
+{ genre: "Drama", rating: { $gte: 8 } }
+
+winningPlan.stage : COLLSCAN
+executionStats.nReturned : 2
+executionStats.totalDocsExamined : 8
+executionStats.totalKeysExamined : 0
+
+Matching movies:
+1. Silent River
+2. Morning Song
+
+
+TASK 2: CREATE COMPOUND INDEX IN RIGHT ORDER
+
+Index:
+{ genre: 1, rating: -1 }
+
+Index name: genre_1_rating_-1
+
+winningPlan.inputStage.stage : IXSCAN
+executionStats.nReturned : 2
+executionStats.totalDocsExamined : 2
+executionStats.totalKeysExamined : about 2-3
+
+
+TASK 3: COMPARE WITH POORLY ORDERED INDEX
+
+Index:
+{ rating: -1, genre: 1 }
+
+Index name: rating_-1_genre_1
+
+Both queries return:
+1. Silent River
+2. Morning Song
+
+The poorly ordered index examines more keys.
+
+
+TASK 4: DROP THE POORLY ORDERED INDEX
+
+Command:
+db.movies.dropIndex("rating_-1_genre_1");
+
+Poorly ordered index dropped successfully.
+
+
+TASK 5: MULTIKEY INDEX
+
+Index name: cast_1
+
+winningPlan.inputStage.stage : IXSCAN
+isMultiKey : true
+nReturned : 4
+
+Movies featuring Asha:
+1. Silent River
+2. Rapid Chase
+3. Morning Song
+4. Paper Boats
+
+
+TASK 6: HIDE AND UNHIDE INDEX
+
+Index hidden:
+genre_1_rating_-1
+
+The query runs without using the hidden index.
+
+Index unhidden:
+genre_1_rating_-1
+
+The index is available to the query planner again.
+
+
+TASK 7: CUSTOM INDEX NAME
+
+Attempt to create the same compound index
+using a different custom name.
+
+Read the MongoDB error message and list all indexes.
+
+END OF SCENARIO B3
